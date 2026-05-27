@@ -1,110 +1,100 @@
-# ai 이력서 첨삭
+# AI 이력서 첨삭
 
-Korean AI resume and cover letter review service MVP with a safe training-data pipeline.
+AI 기반 이력서 및 자기소개서 첨삭 서비스입니다.  
+사용자가 작성한 자기소개서를 분석해 문장 개선안, 강점/약점, 누락 키워드, 예상 면접 질문, 최종 수정본을 제공하는 것을 목표로 합니다.
 
-This project includes:
-- FastAPI backend
-- React + Vite frontend
-- review history
-- multi-step AI review pipeline
-- consent-based training sample collection
-- approved-source ingestion
-- anonymization and curation
-- curated JSONL export for future SFT / LoRA / QLoRA work
+백엔드는 `FastAPI`, 프론트엔드는 `React + Vite`로 구성되어 있으며, 사용자 동의 기반의 학습 데이터 수집과 개인정보 비식별화 흐름까지 고려해 만든 프로젝트입니다.
 
-## Safety and licensing
+## 주요 기능
 
-We do **not** scrape copyrighted resume or cover-letter sites without permission.
+- 회원가입 / 로그인
+- 이력서 및 자기소개서 첨삭 요청
+- AI 기반 문항별 피드백 생성
+- 문장 단위 개선 제안
+- 강점, 문제점, 누락 키워드 분석
+- 예상 면접 질문 생성
+- 첨삭 결과 이력 관리
+- 관리자용 학습 샘플 검수
+- 개인정보 비식별화 후 학습 데이터 JSONL export
+- 승인된 데이터 소스만 사용하는 안전한 학습 데이터 파이프라인
 
-Blocked by default:
-- Saramin
-- JobKorea
-- LinkedIn
-- Ringker
-- blogs
-- cafes
-- any other third-party site without explicit permission
+## 기술 스택
 
-Allowed sources:
-1. user-consented submissions from our own service
-2. admin-uploaded CSV / JSONL with confirmed usage rights
-3. partner datasets with documented permission
-4. public datasets with AI-training-compatible licenses
-5. manually created seed data
+### Backend
 
-Rules:
-- raw personal data must not be exported to the fine-tuning dataset
-- imported raw text is only for controlled admin review
-- anonymization is required before curation/export
-- export is blocked if high-risk PII remains
+- Python
+- FastAPI
+- SQLAlchemy
+- Pydantic
+- JWT 인증
+- SQLite / PostgreSQL 호환 구조
+- OpenAI API 연동 구조
+- Pytest 기반 테스트
 
-## Repository structure
+### Frontend
+
+- React
+- Vite
+- React Router
+- CSS 기반 커스텀 UI
+
+## 프로젝트 구조
 
 ```text
-ai 이력서 첨삭/
+AI 이력서 첨삭/
   backend/
+    app/
+      api/
+      core/
+      db/
+      models/
+      schemas/
+      services/
+      prompts/
+    migrations/
+    scripts/
+    tests/
+    init_schema.sql
+    requirements.txt
   frontend/
+    public/
+    src/
+      api/
+      components/
+      pages/
+      styles/
+      utils/
+    package.json
   data/
-    seed/
     test_imports/
-  exports/
 ```
 
-## Backend setup
+## 실행 방법
+
+### 1. Backend 실행
 
 ```powershell
 cd backend
 python -m venv .venv
-.venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 Copy-Item .env.example .env
-```
-
-Example `.env`:
-
-```env
-APP_NAME=ai 이력서 첨삭
-APP_ENV=development
-SECRET_KEY=replace-with-a-long-random-string
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=1440
-DATABASE_URL=sqlite:///./local.db
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4o-mini
-MOCK_AI_MODE=true
-CORS_ORIGINS=["http://localhost:5173","http://127.0.0.1:5173"]
-ADMIN_EMAILS=["test@example.com"]
-```
-
-## Database schema / migration
-
-Primary schema setup:
-
-```powershell
-cd backend
-psql -U postgres -d ai_resume_review -f init_schema.sql
-```
-
-Ingestion pipeline migration:
-
-```powershell
-cd F:\장세진\미니 프로젝트\자소서\project
-psql -U postgres -d ai_resume_review -f backend\migrations\20260520_ingestion_pipeline.sql
-```
-
-For local SQLite development, the app also runs `create_all()` and bootstrap upgrades on startup.
-
-## Run backend
-
-```powershell
-cd backend
 uvicorn app.main:app --reload
 ```
 
-- API: `http://127.0.0.1:8000`
-- Swagger: `http://127.0.0.1:8000/docs`
+Backend 기본 주소:
 
-## Run frontend
+```text
+http://127.0.0.1:8000
+```
+
+API 문서:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+### 2. Frontend 실행
 
 ```powershell
 cd frontend
@@ -113,726 +103,122 @@ Copy-Item .env.example .env
 npm run dev
 ```
 
-## Core API
-
-- `POST /auth/signup`
-- `POST /auth/login`
-- `POST /reviews`
-- `GET /reviews`
-- `GET /reviews/{id}`
-- `POST /reviews/{id}/refine`
-- `POST /reviews/{id}/feedback`
-- `POST /reviews/{id}/consent-training`
-
-Admin endpoints:
-- `POST /admin/data-sources`
-- `GET /admin/data-sources`
-- `PATCH /admin/data-sources/{id}`
-- `POST /admin/import/csv`
-- `POST /admin/import/jsonl`
-- `POST /admin/import/approved-urls`
-- `GET /admin/imported-documents`
-- `GET /admin/imported-documents/{id}`
-- `POST /admin/imported-documents/{id}/anonymize`
-- `POST /admin/imported-documents/{id}/reject`
-- `POST /admin/imported-documents/{id}/create-training-sample`
-- `GET /admin/training-samples`
-- `GET /admin/training-samples/{id}`
-- `POST /admin/training-samples/{id}/review`
-- `POST /admin/export-training-jsonl`
-- `POST /admin/export/curated-training-jsonl`
-
-## Review workflow notes
-
-- `cover_letter_text` is required and must be at least 20 characters.
-- `resume_text`, `target_job_role`, and `job_posting_text` are optional. When they are empty, the review runs from the cover letter and general role context.
-- The AI review returns `sentence_reviews` for sentence-by-sentence coaching. Each reviewed sentence is marked as `good`, `okay`, `needs_fix`, or `risky`.
-- Good sentences show why they work. Sentences that need work can be clicked in the document and replaced with the suggested rewrite.
-- Suggested rewrites must be actual cover-letter sentences, not editing instructions. The service filters out instruction-like text such as "add this" or "make it more specific".
-- Rewrites should use facts from the original draft, such as technologies, projects, tools, and responsibilities already mentioned. The AI must not invent companies, awards, certifications, project names, or performance numbers.
-- Missing numbers may remain as placeholders like `[성과 수치]`, `[기간]`, or `[횟수]`, but a rewrite should not be mostly placeholders.
-- If a suggested rewrite looks unsafe to apply directly, the UI marks it as direct-edit recommended and hides the apply action.
-- The legacy `suggestions` field is still returned for compatibility and as a fallback when sentence reviews are not available.
-- Each sentence review and suggestion is anchored to source text; the frontend uses `start_index` / `end_index` first and falls back to the closest matching original sentence.
-- Applying a sentence rewrite updates the current working draft. It does not silently persist a submitted final document.
-- To use the working draft as the submitted version, save it through the final document panel or the current-draft final-save action.
-- PDF export is generated from the saved final document when one exists. The UI saves the current final candidate immediately before export to avoid exporting stale text.
-- Users should review every suggested rewrite before final submission; sentence-level suggestions are coaching aids, not guaranteed final copy.
-
-## Packaging and Git hygiene
-
-Do not include local runtime, dependency, or secret files in Git commits or deployment ZIPs:
-
-- `.env`, `*.env`, `backend/.env`, `frontend/.env`
-- `frontend/node_modules/`
-- `frontend/dist/`
-- `backend/.venv/`, `backend/.venv_py314_backup/`
-- `.tools/`
-- `backend/local.db`, `backend/test.db`, `*.db`
-- `exports/`
-- `__pycache__/`, `.pytest_cache/`
-- `*.zip`, `*.log`
-
-## Training-data pipeline
-
-### Source registry
-
-`data_sources`
-
-- source types:
-  - `user_consent`
-  - `admin_upload`
-  - `partner_dataset`
-  - `public_dataset`
-  - `manual_seed`
-  - `approved_url_list`
-- license statuses:
-  - `unknown`
-  - `approved`
-  - `rejected`
-  - `needs_review`
-
-Ingestion is allowed only when `license_status=approved`.
-
-### Imported documents
-
-`imported_documents` can temporarily store raw text for admin review.
-
-Important:
-- raw text is never exported directly to fine-tuning JSONL
-- production should encrypt this field or move it to secure object storage
-
-### Anonymization
-
-`backend/app/services/anonymization_service.py`
-
-Masks:
-- names
-- emails
-- phone numbers
-- birth dates
-- resident-registration-like patterns
-- addresses
-- school names
-- company names
-- URLs
-- account numbers
-- student / employee IDs
-
-Placeholders:
-- `[NAME]`
-- `[EMAIL]`
-- `[PHONE]`
-- `[BIRTH_DATE]`
-- `[RRN]`
-- `[ADDRESS]`
-- `[SCHOOL]`
-- `[COMPANY]`
-- `[URL]`
-- `[ACCOUNT]`
-- `[ID]`
-
-### Curation rules
-
-Samples are exportable only when all of these are true:
-- data source is approved
-- `quality_status=reviewed`
-- `reviewed_by_human=true`
-- PII risk is below the threshold
-- assistant message contains valid review JSON
-- required review schema fields exist
-
-## Seed dataset generator
-
-The seed generator creates fully fictional, privacy-safe, license-safe samples for pipeline testing.
-
-It does **not**:
-- scrape external sites
-- use real accepted cover letters
-- use real personal data
-
-Command:
-
-```powershell
-python backend/scripts/generate_seed_training_data.py --count-per-role 50
-```
-
-Output:
+Frontend 기본 주소:
 
 ```text
-data/seed/generated_seed_samples.jsonl
+http://127.0.0.1:5173
 ```
 
-Generated seed data defaults:
-- `data_source=manual_seed`
-- `quality_status=draft`
+## 환경 변수 예시
 
-## Seed dataset import into shared pipeline
+실제 `.env` 파일은 Git에 올리지 않습니다.  
+아래 값은 예시이며, 실제 키와 비밀번호는 각자 로컬 환경에만 설정해야 합니다.
 
-Import the generated seed JSONL into the same curation/export pipeline used by other training samples:
-
-```powershell
-python backend/scripts/import_seed_training_data.py
-```
-
-This script:
-- creates or reuses the `Fictional Manual Seed Dataset` data source
-- validates every JSONL line
-- validates assistant JSON
-- validates review schema
-- rejects PII
-- skips duplicate `original_cover_letter` values
-- stores samples in `anonymized_training_samples`
-
-## Admin curation workflow
-
-Real production curation must happen through the admin UI, not through the local bulk-review helper.
-
-Recommended flow:
-1. Generate seed data
-2. Import seed data
-3. Open the admin training sample list
-4. Inspect a training sample detail page
-5. Mark the sample reviewed or rejected
-6. Export curated JSONL
-7. Use the exported JSONL later for LoRA / QLoRA training preparation
-
-Admin frontend routes:
-- `/admin/training-samples`
-- `/admin/training-samples/:id`
-- `/admin/training-export`
-
-## Local-only bulk review helper
-
-For local pipeline testing only:
-
-```powershell
-python backend/scripts/mark_seed_samples_reviewed.py
-```
-
-Rules:
-- only works when `APP_ENV` is `local` or `development`
-- marks manual-seed samples as reviewed
-- sets `reviewed_by_human=true`
-- adds the note:
-  `Bulk reviewed for local pipeline testing. Must not be used for production evaluation without human review.`
-
-This helper is only for local export verification. Production usage still requires real human review.
-
-## User-facing workflow
-
-1. Open the landing page
-2. Sign up or log in
-3. Create a new review in the workspace
-4. Review AI feedback, score cards, and before/after comparison
-5. Review sentence-level improvement suggestions and apply them selectively
-6. Refine the improved text with preset or custom instructions
-7. Copy, save, or export the final text
-8. View saved history later from the review history page
-
-## AI review pipeline
-
-CoverFit AI now uses a versioned review pipeline instead of a single opaque prompt.
-
-Prompt versions:
-- `REVIEW_PROMPT_VERSION=coverfit-review-v2`
-- `REFINE_PROMPT_VERSION=coverfit-refine-v2`
-- `REVIEW_PIPELINE_VERSION=coverfit-pipeline-v2`
-
-Review steps:
-1. Job posting analysis
-2. Cover letter diagnosis
-3. Final structured review generation
-4. JSON validation and repair
-
-Job posting analysis extracts:
-- `job_keywords`
-- `required_competencies`
-- `preferred_experiences`
-- `tone_hint`
-- `risk_notes`
-
-Diagnosis extracts:
-- `core_experiences`
-- `weak_points`
-- `missing_evidence`
-- `overused_expressions`
-- `job_fit_notes`
-- `recommended_structure`
-
-Final review response remains frontend-compatible and still includes:
-- `total_score`
-- `scores`
-- `summary`
-- `problems`
-- `improvement_strategy`
-- `improved_cover_letter`
-- `interview_questions`
-- `missing_keywords`
-- `strengths`
-
-Optional metadata-style fields may also be present:
-- `job_keywords`
-- `rewritten_structure`
-- `evidence_suggestions`
-- `ats_keyword_notes`
-- `final_review_checklist`
-
-## Scoring rubric
-
-Each category is scored `0-100`.
-
-- `job_fit`: 직무 적합도
-- `specificity`: 경험의 구체성
-- `achievement`: 성과/수치 표현
-- `writing_quality`: 문장력
-- `uniqueness`: 차별성
-- `structure`: 논리 구조
-- `keyword_match`: 채용공고 키워드 반영
-
-Conservative scoring rules:
-- vague cover letters should usually stay below `65`
-- good but generic cover letters usually fall in `65-78`
-- strong role-aligned cover letters can reach `79-90`
-- `90+` should be rare and require exceptional evidence
-- when job posting detail is weak, `keyword_match` stays conservative
-- when action/result evidence is missing, `achievement` stays low
-- when the text is too short, `specificity` and `structure` should stay low
-- when wording is exaggerated, `writing_quality` and `uniqueness` should be adjusted down
-
-## Review modes
-
-- `quick`: concise summary, top problems, shorter improved draft
-- `detailed`: balanced full review
-- `strict`: more critical scoring and sharper diagnosis
-- `rewrite-focused`: puts more emphasis on the final improved draft
-
-The API accepts `rewrite-focused`. For compatibility, internal normalization also accepts `rewrite_focused`.
-
-## Refinement behavior
-
-`POST /reviews/{id}/refine`
-
-Refinement is now versioned and follows stricter rules:
-- preserve the user's real experience
-- do not invent achievements, certificates, company names, or numbers
-- use placeholders like `[기간]`, `[성과 수치]`, `[횟수]` when proof is missing
-- return:
-  - `refined_text`
-  - `change_summary`
-  - `warnings`
-
-Preset refinement intent:
-- `더 구체적으로`
-- `성과 중심으로`
-- `자연스럽게`
-- `신입답게`
-- `700자로 줄이기`
-- `면접에서 설명하기 쉽게`
-- `과장 줄이기`
-
-## Quality feedback API
-
-Users can now rate review helpfulness for future quality analysis:
-
-- `POST /reviews/{id}/feedback`
-
-Request:
-
-```json
-{
-  "rating": "helpful",
-  "reason": "개선 방향이 구체적이어서 수정에 도움이 됐습니다."
-}
-```
-
-Allowed ratings:
-- `helpful`
-- `not_helpful`
-
-This feedback is stored separately from training export for now.
-
-## Important review safety rule
-
-The review and refinement pipeline must not invent user achievements.
-
-That means:
-- no fake company names
-- no fake certificates
-- no fake numbers
-- no fake durations
-- no fake promotions or roles
-
-If evidence is missing, the improved text should keep the experience truthful and use placeholders or explicit improvement guidance instead.
-
-## 문장별 보완 제안
-
-CoverFit AI now returns sentence-level suggestions together with the main review result.
-
-What it does:
-- marks weak or high-impact sentences from the original cover letter
-- explains why they need improvement
-- proposes a safer rewrite that preserves the user's real experience
-- lets the user apply suggestions one by one in the editor
-
-Suggestion rules:
-- only 3 to 7 high-impact suggestions are returned
-- suggestions focus on vague expression, weak job relevance, missing action/result, unsupported achievement, cliché phrases, tone, paragraph flow, and missing keywords
-- missing numbers are expressed with placeholders such as `[기간]`, `[성과 수치]`, `[횟수]`, `[규모]`, `[도구]`
-- the user remains in control and should review the final text before submission
-
-Frontend behavior:
-- `/reviews/new` shows:
-  - `첨삭 표시 보기` preview with highlighted weak text
-  - `문장별 보완 제안` cards
-  - one-click apply
-  - skip
-  - undo last apply
-- `/reviews/{id}` shows saved suggestions again and allows applying them into the current improved/final text flow
-
-User-facing frontend routes:
-- `/`
-- `/dashboard`
-- `/reviews/new`
-- `/reviews/:id`
-- `/reviews/history`
-- `/templates`
-
-## Product UI overview
-
-The frontend is now organized as a document-centered SaaS workspace under the `CoverFit AI` product name.
-
-Main user experience:
-1. Public landing page
-2. Dashboard for saved documents and score overview
-3. New review workspace with:
-   - left editor panel
-   - right AI coach panel
-   - review-mode toolbar
-   - before/after editing flow
-4. Saved review detail page with refinement history
-5. Review history as a document library
-6. Admin curation pages for training samples
-
-Design direction:
-- light workspace background
-- white cards
-- sticky panels
-- Korean-friendly typography
-- polished SaaS shell with sidebar and topbar
-
-## Redesigned frontend routes
-
-Public:
-- `/`
-- `/login`
-- `/signup`
-
-User app:
-- `/dashboard`
-- `/reviews/new`
-- `/reviews/history`
-- `/reviews/:id`
-- `/templates`
-
-Admin:
-- `/admin/training-samples`
-- `/admin/training-samples/:id`
-- `/admin/training-export`
-
-## Validation script
-
-```powershell
-python backend/scripts/validate_ingested_training_data.py
-```
-
-It checks:
-- training sample validity
-- counts by job role
-- counts by source type
-- PII signals
-- duplicate texts
-- assistant JSON validity
-- export readiness
-
-## Review quality evaluation script
-
-```powershell
-cd backend
-.venv\Scripts\python.exe scripts\evaluate_review_quality.py
-```
-
-Behavior:
-- when `OPENAI_API_KEY` exists, it can evaluate with the live OpenAI review pipeline
-- when no API key exists, it runs schema/mock validation only
-
-It writes a timestamped evaluation artifact to:
-
-```text
-backend/evaluation_outputs/review_quality_eval_YYYYMMDD_HHMMSS.json
-```
-
-## CSV / JSONL import formats
-
-CSV:
-
-```csv
-document_type,job_role,original_title,original_text,source_reference,license_note
-accepted_cover_letter,웹개발자 신입,샘플 제목,자기소개서 원문...,seed-1,internal rights confirmed
-```
-
-JSONL:
-
-```json
-{
-  "document_type": "accepted_cover_letter",
-  "job_role": "웹개발자 신입",
-  "original_title": "샘플 제목",
-  "original_text": "자기소개서 원문...",
-  "source_reference": "partner-set-01",
-  "license_note": "usage rights confirmed"
-}
-```
-
-Sample fake import file:
-
-```text
-data/test_imports/accepted_cover_letters_sample.jsonl
-```
-
-## Approved URL import warning
-
-`approved_url_list` import must only be used for sources with explicit permission.
-
-The importer:
-- fetches only the exact URLs provided
-- does not crawl recursively
-- tries to respect `robots.txt`
-- does not bypass login, paywalls, captcha, rate limits, or anti-bot protection
-
-## Tests
-
-Run backend tests:
-
-```powershell
-cd backend
-.venv\Scripts\python.exe -m pytest
-```
-
-Recommended local verification flow:
-
-```powershell
-cd backend
-.venv\Scripts\python.exe -m pytest
-.venv\Scripts\python.exe scripts\evaluate_review_quality.py
-.venv\Scripts\python.exe scripts\generate_seed_training_data.py --count-per-role 50
-.venv\Scripts\python.exe scripts\import_seed_training_data.py
-.venv\Scripts\python.exe scripts\mark_seed_samples_reviewed.py
-.venv\Scripts\python.exe scripts\validate_ingested_training_data.py
-```
-
-Frontend commands:
-
-```powershell
-cd frontend
-npm run build
-npm run dev
-```
-
-There is currently no `npm run lint` script configured in `frontend/package.json`.
-
-## Screenshots
-
-Placeholder sections for future screenshots:
-- landing page
-- new review workspace
-- saved review detail
-- admin training sample curation
-
-## Manual QA checklist
-
-- public landing page loads when logged out
-- logged-in user is redirected to `/dashboard`
-- new review workspace loads at `/reviews/new`
-- AI result appears in the right coach panel after analysis
-- improved text can be copied
-- improved text can be applied back into the editor
-- refinement works from the refine tab
-- history opens saved review detail
-- admin pages still work
-- mobile layout remains usable
-
-Frontend automated tests are not configured yet. For now, use `npm run build` plus manual QA through the routes above.
-
-## Current seed pipeline status
-
-After importing the generated seed dataset and marking it reviewed for local testing:
-- imported seed samples: `250`
-- export-ready seed samples: `250`
-
-One older user-consent sample remains non-exportable until a human review is recorded.
-
-## Final document and PDF export workflow
-
-The user-facing workflow is now clearer and less file-cabinet oriented:
-
-1. Write or paste a cover letter draft.
-2. Run AI review against the target role, resume summary, and job posting.
-3. Apply the improved draft or refinement result.
-4. Edit the final version manually in the `완성본 만들기` panel.
-5. Save the final version.
-6. Export the saved final version as PDF.
-
-Backend endpoints:
-
-```text
-GET /reviews/{id}/final-document
-PUT /reviews/{id}/final-document
-GET /reviews/{id}/export/pdf
-```
-
-The PDF export includes:
-- final cover letter text
-- target job role
-- review mode
-- AI review summary
-- score table
-- strengths
-- improvement points
-- interview questions
-
-The PDF generator uses ReportLab with built-in Korean CID fonts, so the project does not ship font files.
-
-## Deployment guide
-
-### Recommended MVP deployment
-
-For the first public beta, use a split deployment:
-
-```text
-Frontend: Vercel
-Backend API: Render Web Service
-Database: Render Postgres or Supabase Postgres
-AI: OpenAI API key through backend environment variables
-```
-
-### Frontend deployment on Vercel
-
-1. Push the project to GitHub.
-2. Create a new Vercel project.
-3. Set the root directory to `frontend`.
-4. Build command:
-
-```bash
-npm run build
-```
-
-5. Output directory:
-
-```text
-dist
-```
-
-6. Add environment variable:
-
-```text
-VITE_API_BASE_URL=https://your-backend-domain.onrender.com
-```
-
-`frontend/vercel.json` is included so React Router routes such as `/reviews/new` and `/reviews/:id` refresh correctly.
-
-### Backend deployment on Render
-
-Create a Render Web Service from the GitHub repository.
-
-Recommended settings:
-
-```text
-Root Directory: backend
-Build Command: pip install -r requirements.txt
-Start Command: ./start.sh
-```
-
-Required environment variables:
-
-```text
-APP_NAME=CoverFit AI
-APP_ENV=production
+```env
+APP_NAME=AI 이력서 첨삭
+APP_ENV=development
 SECRET_KEY=<long-random-secret>
-DATABASE_URL=<postgres connection string>
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=1440
+DATABASE_URL=sqlite:///./local.db
 OPENAI_API_KEY=<your-openai-api-key>
 OPENAI_MODEL=gpt-4o-mini
-MOCK_AI_MODE=false
-CORS_ORIGINS=["https://your-frontend-domain.vercel.app"]
-ADMIN_EMAILS=["your-admin-email@example.com"]
+MOCK_AI_MODE=true
+CORS_ORIGINS=["http://localhost:5173","http://127.0.0.1:5173"]
+ADMIN_EMAILS=["test@example.com"]
 ```
 
-The backend normalizes `postgres://` and `postgresql://` into the `postgresql+psycopg://` SQLAlchemy driver format automatically.
+## 주요 API
 
-### Database
+- `POST /auth/signup`  
+  회원가입
 
-Use PostgreSQL for production. SQLite is fine for local testing only.
+- `POST /auth/login`  
+  로그인 및 토큰 발급
 
-The FastAPI app currently creates and updates required schema on startup. For a larger production service, replace this with Alembic migrations before scaling.
+- `POST /reviews`  
+  자기소개서 첨삭 요청
 
-### Production checklist before launch
+- `GET /reviews`  
+  첨삭 이력 조회
 
-- Replace `SECRET_KEY` with a long random value.
-- Set `CORS_ORIGINS` to the exact frontend domain only.
-- Confirm `MOCK_AI_MODE=false` and `OPENAI_API_KEY` is set.
-- Use PostgreSQL, not SQLite.
-- Add a privacy policy and terms page.
-- Add account deletion and training-data deletion request handling.
-- Add rate limits and daily free usage limits.
-- Hide admin routes based on role, not just navigation.
-- Add error monitoring and basic access logs.
-- Back up the production database.
-- Confirm PDF export works with Korean text on the production server.
+- `GET /reviews/{review_id}`  
+  첨삭 상세 조회
 
-## Optional inputs and inline suggestions
+- `POST /admin/training-samples/import`  
+  관리자 학습 데이터 import
 
-CoverFit AI now supports a lighter review flow:
+- `POST /admin/training-samples/export`  
+  비식별화된 학습 데이터 export
 
-- `cover_letter_text` is required
-- `target_job_role` is optional
-- `resume_text` is optional
-- `job_posting_text` is optional
+## 학습 데이터 정책
 
-This means users can submit:
+이 프로젝트는 무단 크롤링 데이터를 학습에 사용하지 않는 것을 원칙으로 합니다.
 
-- cover letter only
-- cover letter + target job role
-- cover letter + any combination of resume summary and job posting
+허용하는 데이터:
 
-When resume summary or job posting is missing, the review still runs and the AI responds conservatively:
+- 서비스 이용자가 학습 활용에 동의한 제출 데이터
+- 관리자가 권한을 확인한 CSV / JSONL 데이터
+- 사용 허가가 명확한 파트너 데이터
+- AI 학습 사용이 허용된 공개 데이터셋
+- 직접 작성한 seed 데이터
 
-- keyword matching is evaluated more carefully when no job posting is provided
-- role alignment is phrased more generally when the target role is missing
-- evidence validation is limited to the cover letter when no resume summary is provided
+차단하는 데이터:
 
-### 문장별 보완 제안
+- 허가 없이 수집한 채용 사이트 자기소개서
+- 블로그, 카페, 커뮤니티의 무단 수집 글
+- 개인정보가 포함된 원문 데이터
+- 저작권 또는 이용 약관이 불명확한 데이터
 
-The review workspace includes inline sentence-level suggestions.
+학습 데이터 export 전에는 개인정보 비식별화와 위험 문구 검사를 수행하도록 구성했습니다.
 
-- weak sentences or short paragraphs are highlighted inside `첨삭 표시`
-- clicking a highlighted phrase opens a small proofreading note near the text
-- users can apply one suggestion at a time with `이 문장 적용`
-- suggestions preserve the user’s actual experience
-- when facts are missing, placeholders such as `[기간]`, `[성과 수치]`, `[횟수]` can appear instead of invented details
-- users should always review the final text before submission
+## 테스트
 
-### Local validation commands
-
-Backend:
+### Backend 테스트
 
 ```powershell
-cd backend
-.venv\Scripts\python.exe -m pytest
+python -m pytest backend\tests -q
 ```
 
-Frontend:
+현재 확인된 결과:
+
+```text
+43 passed
+```
+
+### Frontend 테스트
 
 ```powershell
 cd frontend
-npm run build
+npm run test:suggestions
 ```
+
+## 보안 관리
+
+다음 파일과 폴더는 Git에 올리지 않습니다.
+
+- `.env`
+- 로컬 DB 파일
+- 로그 파일
+- `node_modules`
+- Python 가상환경
+- 빌드 결과물
+- export 결과물
+
+민감정보는 `.env.example`에는 예시 형태로만 남기고, 실제 값은 로컬 `.env`에서만 관리합니다.
+
+## 프로젝트 목적
+
+이 프로젝트는 단순한 AI 호출 데모가 아니라, 실제 서비스 운영을 고려한 이력서 첨삭 웹서비스 MVP입니다.
+
+중점적으로 구현한 부분:
+
+- 사용자 입력 기반 첨삭 흐름
+- 결과 저장 및 이력 관리
+- 관리자 검수 기반 학습 데이터 관리
+- 개인정보 비식별화
+- 안전한 데이터 export
+- 백엔드 테스트 코드
+- 프론트엔드 페이지 및 컴포넌트 구조화
+
+향후에는 첨삭 품질 평가 자동화, 문항별 합격 가능성 분석, 기업/직무별 맞춤 피드백, PDF export, 배포 환경 분리 등을 추가할 수 있습니다.
