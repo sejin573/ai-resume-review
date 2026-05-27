@@ -1,0 +1,70 @@
+[
+  {
+    "name": "vague_generic_cover_letter",
+    "target_job_role": "사무직",
+    "review_mode": "strict",
+    "resume_text": "문서 정리와 일정 보조를 맡으며 기본적인 엑셀 입력과 보고서 정리 경험을 쌓았습니다.",
+    "cover_letter_text": "저는 성실하고 책임감 있는 사람입니다. 어떤 일이든 최선을 다하며 빠르게 배우고 조직에 도움이 되는 인재가 되고 싶습니다. 맡은 일은 항상 열심히 하겠습니다.",
+    "job_posting_text": "문서 관리, 일정 조율, 엑셀 활용, 협업 커뮤니케이션 능력을 요구하는 사무직 채용공고입니다.",
+    "expected_max_score": 64
+  },
+  {
+    "name": "too_short_cover_letter",
+    "target_job_role": "교육행정",
+    "review_mode": "detailed",
+    "resume_text": "교육 프로그램 운영 보조와 참여자 응대 경험이 있습니다.",
+    "cover_letter_text": "교육행정에 관심이 많아 지원했습니다. 잘하겠습니다.",
+    "job_posting_text": "교육 일정 운영, 수강생 응대, 문서 정리, 내부 협업 역량을 요구합니다.",
+    "expected_max_score": 60
+  },
+  {
+    "name": "strong_project_based_web_developer",
+    "target_job_role": "웹개발자 신입",
+    "review_mode": "detailed",
+    "resume_text": "캡스톤 프로젝트에서 FastAPI 백엔드와 PostgreSQL 스키마 설계를 맡았고, 에러 로그를 정리해 응답 실패 비율을 줄였습니다. 팀 협업 중 API 명세 문서를 직접 정리했습니다.",
+    "cover_letter_text": "캡스톤 프로젝트에서 저는 팀의 백엔드 구현을 맡아 FastAPI 기반 API를 설계하고 PostgreSQL 테이블 구조를 정리했습니다. 개발 초반에는 오류 응답 규칙이 없어 프론트엔드와 협업 속도가 느렸지만, 제가 예외 처리 규칙과 응답 포맷을 문서화해 공유하면서 반복 문의를 줄일 수 있었습니다. 배포 전에는 로그를 기준으로 자주 발생한 오류를 추적해 수정했고, 테스트 기간 동안 실패 요청을 18% 줄였습니다. 이 경험을 통해 단순히 기능을 만드는 것보다 협업 가능한 구조를 만드는 것이 중요하다는 점을 배웠고, 웹개발자 직무에서도 같은 방식으로 기여하고 싶습니다.",
+    "job_posting_text": "FastAPI 또는 웹 백엔드 경험, 데이터베이스 이해, 협업 커뮤니케이션, 문제 해결 역량을 갖춘 웹개발자 신입을 모집합니다.",
+    "expected_min_score": 78
+  },
+  {
+    "name": "career_changer_marketing",
+    "target_job_role": "마케팅",
+    "review_mode": "rewrite_focused",
+    "resume_text": "행정 지원 업무를 하며 행사 안내문 작성, 참여자 문의 대응, 홍보 게시물 업로드를 담당했습니다.",
+    "cover_letter_text": "이전에는 행정 지원 업무를 맡았지만, 행사 공지와 게시물 반응을 보며 메시지 전달 방식에 관심이 생겼습니다. 특히 안내문 제목과 구성에 따라 문의량이 달라지는 점을 보며 콘텐츠 기획의 중요성을 체감했습니다. 아직 정식 마케팅 직무 경험은 없지만, 운영 현장에서 얻은 관찰을 바탕으로 타깃 반응을 읽는 힘을 키우고자 합니다.",
+    "job_posting_text": "콘텐츠 기획, 캠페인 운영 지원, 타깃 분석, 데이터 기반 개선 역량을 가진 마케팅 담당자를 찾습니다."
+  },
+  {
+    "name": "no_job_posting_case",
+    "target_job_role": "사회복지사",
+    "review_mode": "detailed",
+    "resume_text": "지역 프로그램 운영 보조와 대상자 상담 동행 경험이 있습니다.",
+    "cover_letter_text": "복지 현장에서 가장 중요하다고 느낀 것은 대상자의 말을 끝까지 듣고 필요한 지원을 연결하는 과정이었습니다. 봉사와 실습을 통해 기록 정리와 일정 조율을 맡으며 현장 대응의 기본을 배웠습니다.",
+    "job_posting_text": "채용공고 정보가 아직 정리되지 않았습니다. 직무명만 참고해 자기소개서를 검토해 주세요."
+  },
+  {
+    "name": "exaggerated_cover_letter",
+    "target_job_role": "웹개발자 신입",
+    "review_mode": "strict",
+    "resume_text": "개인 프로젝트와 부트캠프 팀 과제가 있습니다.",
+    "cover_letter_text": "저는 최고의 개발자로서 어떤 문제든 완벽하게 해결할 수 있습니다. 누구보다 빠르게 성장했고 모든 프로젝트를 압도적으로 성공시켰습니다. 입사 후에도 반드시 가장 뛰어난 성과를 내겠습니다.",
+    "job_posting_text": "문제 해결, 협업, 웹 서비스 개발 경험, 프로젝트 기반 학습 경험을 요구합니다.",
+    "expected_max_score": 55
+  },
+  {
+    "name": "education_admin_case",
+    "target_job_role": "교육행정",
+    "review_mode": "detailed",
+    "resume_text": "가상의 새봄교육센터에서 수강 신청 데이터 정리, 강의실 배정 보조, 공지 메일 발송을 담당한 실습 경험이 있습니다.",
+    "cover_letter_text": "교육 현장에서는 일정과 안내가 어긋나면 학습 경험 전체가 흔들릴 수 있다고 느꼈습니다. 실습 당시 저는 수강 신청 데이터 정리와 강의실 배정 보조를 맡았고, 변경 사항이 생길 때마다 공지 문구를 다시 확인해 혼선을 줄이려 했습니다. 특히 반복 문의가 많았던 안내 항목을 정리해 공지 메일 순서를 바꾼 뒤 문의가 눈에 띄게 줄어들었습니다. 이 경험을 바탕으로 교육행정 직무에서도 정확한 운영과 응대 품질을 함께 높이고 싶습니다.",
+    "job_posting_text": "교육 일정 운영, 문서 정리, 수강생 응대, 행정 정확성, 협업 커뮤니케이션 역량을 요구합니다."
+  },
+  {
+    "name": "no_experience_entry_case",
+    "target_job_role": "사무직",
+    "review_mode": "quick",
+    "resume_text": "직무 경험은 없지만 학교 팀 과제와 동아리 운영 보조를 경험했습니다.",
+    "cover_letter_text": "직무 경험은 없지만 맡은 일은 책임감 있게 수행했습니다. 학교 과제와 동아리 활동을 하며 사람들과 협업했고, 새로운 업무도 빠르게 익히려 노력했습니다. 아직 부족하지만 배우며 성장하겠습니다.",
+    "job_posting_text": "기본 문서 처리, 일정 관리, 엑셀 활용, 협업 커뮤니케이션 역량을 요구합니다."
+  }
+]

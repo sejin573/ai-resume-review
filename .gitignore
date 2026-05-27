@@ -1,0 +1,31 @@
+# local secrets
+.env
+*.env
+backend/.env
+frontend/.env
+
+# Python
+.venv/
+backend/.venv/
+backend/.venv_py314_backup/
+__pycache__/
+.pytest_cache/
+*.pyc
+
+# Node / frontend build
+frontend/node_modules/
+frontend/dist/
+.tools/
+
+# local databases, logs, exports, generated data
+*.db
+backend/*.db
+backend/local.db
+backend/test.db
+*.log
+exports/
+backend/evaluation_outputs/
+data/seed/generated_seed_samples.jsonl
+
+# local archives
+*.zip
